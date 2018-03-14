@@ -2,7 +2,7 @@ import numpy
 import pandas
 import matplotlib.pyplot as plt
 import seaborn as sns
-from Titanic import calcSurvived
+
 
 def plotNumerical(feature):
     sns.set_style("whitegrid")
@@ -19,12 +19,12 @@ def plotNumerical(feature):
                  hist_kws=dict(edgecolor=None, linewidth=0), hist=False)
     plt.show();
 
-train_data = pandas.read_csv('train.csv',index_col='PassengerId')
+train_data = pandas.read_csv('Input/train.csv',index_col='PassengerId')
 print(train_data)
 train_data['target_name'] = train_data['Survived'].map({0: 'Not Survived', 1: 'Survived'})
 
-test_data=pandas.read_csv('test.csv',index_col='PassengerId')
-survived=calcSurvived();
+test_data=pandas.read_csv('Input/test.csv',index_col='PassengerId')
+survived=calcResult();
 print(survived)
 test_data=test_data.merge(survived, left_index=True, sort=False,right_on="PassengerId")
 
