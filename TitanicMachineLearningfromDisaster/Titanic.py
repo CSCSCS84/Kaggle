@@ -2,19 +2,24 @@ import numpy
 import pandas
 from TitanicMachineLearningfromDisaster import TitanicYassineGhouzam
 from TitanicMachineLearningfromDisaster import PrepareData
-from TitanicMachineLearningfromDisaster import LogisticRegression
+from TitanicMachineLearningfromDisaster import LogisticRegressionMy
 from seaborn.utils import sig_stars
+
+#def prepareTitanicData():
+
 
 trainDataSet = pandas.read_csv("Input/train.csv")
 features=["Age","SibSp","Parch","Fare"]
 featuresToScale = ['Pclass', 'Age', 'SibSp', 'Parch','Fare']
 outliners=TitanicYassineGhouzam.detectOutliners(trainDataSet,2,features)
 trainDataSet=trainDataSet.drop(outliners)
+trainDataSet=trainDataSet.dropna()
+
 
 trainDataSet=PrepareData.convertDataToNumericalDataFrame(trainDataSet)
 
 TitanicYassineGhouzam.fillMissingData(trainDataSet)
-trainDataSet=trainDataSet.dropna()
+
 TitanicYassineGhouzam.logScaleFare(trainDataSet)
 trainDataSet=PrepareData.scaleData(trainDataSet,featuresToScale)
 
@@ -29,6 +34,6 @@ TitanicYassineGhouzam.logScaleFare(testdata)
 testdata=PrepareData.scaleData(testdata,featuresToScale)
 
 print(testdata)
-result=LogisticRegression.logRegression(trainDataSet,testdata,features)
+result=LogisticRegressionMy.logRegression(trainDataSet, testdata, features)
 resultSurvived = pandas.DataFrame(result['Survived'])
 resultSurvived.to_csv('Calcedresults.csv', header='PassengerId\tSurvived',sep=',')

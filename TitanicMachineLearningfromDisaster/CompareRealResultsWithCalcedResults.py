@@ -78,7 +78,7 @@ for index, row in testData.iterrows():
         correctPassenger=correctPassenger.append(row)
     #print(paId)
 
-printDifferencesIncorrectCorrect(incorrectPassenger,correctPassenger)
+#printDifferencesIncorrectCorrect(incorrectPassenger,correctPassenger)
 #print(incorrectPassenger)
 #print(correctPassenger)
 
