@@ -2,7 +2,7 @@ import numpy
 import pandas
 from TitanicMachineLearningfromDisaster import TitanicYassineGhouzam
 from TitanicMachineLearningfromDisaster import PrepareData
-from TitanicMachineLearningfromDisaster import LogisticRegressionMy
+from TitanicMachineLearningfromDisaster import LogisticRegressionCS
 from seaborn.utils import sig_stars
 
 #def prepareTitanicData():
@@ -34,6 +34,6 @@ TitanicYassineGhouzam.logScaleFare(testdata)
 testdata=PrepareData.scaleData(testdata,featuresToScale)
 
 print(testdata)
-result=LogisticRegressionMy.logRegression(trainDataSet, testdata, features)
+result=LogisticRegressionCS.logRegression(trainDataSet, testdata, features)
 resultSurvived = pandas.DataFrame(result['Survived'])
 resultSurvived.to_csv('Calcedresults.csv', header='PassengerId\tSurvived',sep=',')

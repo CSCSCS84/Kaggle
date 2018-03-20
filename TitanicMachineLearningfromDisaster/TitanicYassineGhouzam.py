@@ -3,7 +3,7 @@ import pandas
 from seaborn.utils import sig_stars
 from sklearn.preprocessing import MinMaxScaler
 from collections import Counter
-from TitanicMachineLearningfromDisaster import LogisticRegressionMy
+from TitanicMachineLearningfromDisaster import LogisticRegressionCS
 from TitanicMachineLearningfromDisaster import PrepareData
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -253,18 +253,35 @@ features=['Age','Fare',  'Sex', 'Single', 'SmallFamily', 'MediumFamily', 'LargeF
 correlation = dataset[features].corr().round(
     2);
 #print(correlation)
-classifierCS=LogisticRegressionMy.LogisticRegressionCS(max_iter=100);
-result=classifierCS.logRegression(trainDataSet,testdata,features)
-resultSurvived = pandas.DataFrame(result['Survived'])
-resultSurvived.to_csv('Calcedresults.csv', header='PassengerId\tSurvived',sep=',')
+classifierCS=LogisticRegressionCS.LogisticRegressionCS(max_iter=1000);
+y=pandas.DataFrame(trainDataSet['Survived'])
+trainDataSet=trainDataSet[features]
+classifierCS.fit(trainDataSet, y)
+testdata=testdata[features]
+ytest=classifierCS.predict(testdata)
+
+result = pandas.DataFrame(index=testdata.index)
+
+result['Survived']=ytest;
+result.to_csv('Calcedresults.csv', header='PassengerId\tSurvived',sep=',')
+
+score=classifierCS.score(trainDataSet,y)
+print(score)
+print('Accuracy of logistic regression classifier on train set: {:.2f}'.format(score))
+ypredTrain=classifierCS.predict(trainDataSet)
+confusionMatrix=classifierCS.confusion_matrix(y, ypredTrain)
+print('Confusion Matrix')
+print(confusionMatrix)
+
 
 
 X_train=trainDataSet[features]
-y_train=trainDataSet['Survived']
-classifier = LogisticRegression(random_state=0, max_iter=10000, fit_intercept=False,tol=0.00001)
+y_train=y
+classifier = LogisticRegression(random_state=0, max_iter=1000, fit_intercept=False,tol=0.00001)
 classifier.fit(X_train, y_train)
 
 X_test=testdata[features]
+
 
 print(classifier)
 #LogisticRegression(C=1.0, class_weight=None, dual=False, fit_intercept=True,
@@ -273,17 +290,20 @@ print(classifier)
 #          verbose=0, warm_start=False)
 
 
+
 y_predTest = classifier.predict(X_test)
 y_predTrain=classifier.predict(X_train)
 confusion_matrix = confusion_matrix(y_train, y_predTrain)
 
 print(classifier.coef_)
-#print(confusion_matrix)
+print(confusion_matrix)
 print('Accuracy of logistic regression classifier on train set: {:.2f}'.format(classifier.score(X_train, y_train)))
 print('Accuracy of logistic regression classifier on test set: {:.2f}'.format(classifier.score(X_test, y_predTest)))
 
-error=classifierCS.calcError(features,y_train,classifier.coef_.transpose(),X_train)
+error=classifierCS.calculateCosts(X_train,classifier.coef_.transpose(),y_train)
 print(error)
+
+
 #print(y_pred)
 #resultSurvived = pandas.DataFrame(y_pred)
 #resultSurvived.to_csv('Calcedresults.csv', header='PassengerId\tSurvived',sep=',')
