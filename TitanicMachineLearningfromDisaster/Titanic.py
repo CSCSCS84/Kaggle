@@ -1,7 +1,7 @@
 import numpy
 import pandas
 from TitanicMachineLearningfromDisaster import TitanicYassineGhouzam
-from TitanicMachineLearningfromDisaster import PrepareData
+from TitanicMachineLearningfromDisaster import PrepareDataTitanic
 from TitanicMachineLearningfromDisaster import LogisticRegressionCS
 from seaborn.utils import sig_stars
 
@@ -16,22 +16,22 @@ trainDataSet=trainDataSet.drop(outliners)
 trainDataSet=trainDataSet.dropna()
 
 
-trainDataSet=PrepareData.convertDataToNumericalDataFrame(trainDataSet)
+trainDataSet=PrepareDataTitanic.convertDataToNumericalDataFrame(trainDataSet)
 
 TitanicYassineGhouzam.fillMissingData(trainDataSet)
 
 TitanicYassineGhouzam.logScaleFare(trainDataSet)
-trainDataSet=PrepareData.scaleData(trainDataSet,featuresToScale)
+trainDataSet=PrepareDataTitanic.scaleData(trainDataSet, featuresToScale)
 
 
 testdataSet='Input/test.csv';
 testdata = pandas.read_csv(testdataSet,index_col='PassengerId')
 
-testdata=PrepareData.convertDataToNumericalDataFrame(testdata)
+testdata=PrepareDataTitanic.convertDataToNumericalDataFrame(testdata)
 testdata=testdata.fillna(testdata.mean())
 
 TitanicYassineGhouzam.logScaleFare(testdata)
-testdata=PrepareData.scaleData(testdata,featuresToScale)
+testdata=PrepareDataTitanic.scaleData(testdata, featuresToScale)
 
 print(testdata)
 result=LogisticRegressionCS.logRegression(trainDataSet, testdata, features)

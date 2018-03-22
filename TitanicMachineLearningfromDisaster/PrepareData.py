@@ -1,15 +1,7 @@
 import numpy
 import pandas
 from sklearn.preprocessing import MinMaxScaler
-
-def convertDataToNumericalDataFrame(train_data):
-    #train_data = pandas.read_csv(dataset, index_col='PassengerId')
-    #print(train_data)
-    train_data['Sex']=numpy.where(train_data['Sex']=='male',1,0)
-    train_data['Cabin'] = numpy.where(pandas.isnull(train_data['Cabin']), 1, 0)
-    train_data['Embarked'] =numpy.where(train_data['Embarked'] == 'C', 1, (numpy.where(train_data['Embarked'] =='S', 0.5, 0)))
-    return train_data;
-
+from collections import Counter
 
 def scaleData(train_data,featuresToScale):
     #print(train_data)
@@ -18,15 +10,25 @@ def scaleData(train_data,featuresToScale):
     train_data[featuresToScale] = scaler.fit_transform(train_data[featuresToScale])
     return train_data;
 
-def conditions(x):
-    if x == 'S':
-        return 1
-    elif x == 'Q':
-        return 0
-    else:
-        return -1
+#detect outliners using Tuking method
+def detectOutliners(train,numOfOutlines,features):
+    outliners=[];
+    firstQuantil=train.quantile(0.25)
+    thirdQuantil=train.quantile(0.75)
+    IQR=thirdQuantil-firstQuantil;
+    lower=firstQuantil-1.5*IQR;
+    upper=thirdQuantil+1.5*IQR;
 
-#def prepareTestdata(testdata):
-#    testdata['Sex'] = numpy.where(testdata['Sex'] == 'male', 1, 0)
-#    testdata['Embarked'] = numpy.where(testdata['Embarked'] == 'C', 1,
-#                                           (numpy.where(testdata['Embarked'] == 'S', 0.5, 0)))
+    outliers=[];
+    for f in features:
+        firstQuantil = train[f].quantile(0.25,interpolation='linear')
+        thirdQuantil = train[f].quantile(0.75,interpolation='linear')
+        IQR = thirdQuantil - firstQuantil;
+        lower = firstQuantil - 1.5 * IQR;
+        upper = thirdQuantil + 1.5 * IQR;
+        outliersfeature=train[(train[f]<lower) | (train[f]>upper)].index.values;
+        outliers.extend(outliersfeature)
+    outliersCount=Counter(outliers)
+
+    multiple_outliers= list( k for k, v in outliersCount.items() if v > numOfOutlines )
+    return multiple_outliers

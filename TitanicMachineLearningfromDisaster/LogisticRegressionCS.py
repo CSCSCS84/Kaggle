@@ -79,18 +79,3 @@ class LogisticRegressionCS:
         score = (len(diff) - diff.sum()) / (len(diff))
         return score
 
-    def confusion_matrix(self, y, yprediction):
-        confusionMatrix = numpy.zeros((2, 2))
-        for i in range(1, len(y)):
-            if y.values[i] == 0:
-                if yprediction[i] == 0:
-                    confusionMatrix[0][0] += 1
-                else:
-                    confusionMatrix[1][0] += 1
-            else:
-                if yprediction[i] == 1:
-                    confusionMatrix[1][1] += 1
-                else:
-                    confusionMatrix[0][1] += 1
-
-        return confusionMatrix
