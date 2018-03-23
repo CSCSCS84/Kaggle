@@ -7,6 +7,7 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from TitanicMachineLearningfromDisaster import MultipleClassifier
 from TitanicMachineLearningfromDisaster import CrossValidation
+from TitanicMachineLearningfromDisaster import LogisticRegressionCS
 
 def start():
     train = pandas.read_csv("PreparedTrain.csv", index_col='PassengerId')
@@ -43,6 +44,16 @@ def start():
     result['Survived'] = yAll;
     result.to_csv('Calcedresults.csv', header='PassengerId\tSurvived', sep=',')
 
+def testValidation():
+    classifierCS = LogisticRegressionCS.LogisticRegressionCS(max_iter=1000, tolerance=0.00001);
+    classifierCS = KNeighborsClassifier()
+    train = pandas.read_csv("PreparedTrain.csv", index_col='PassengerId')
+    features = ['Age', 'Fare', 'Sex', 'Single', 'SmallFamily', 'MediumFamily', 'LargeFamily', 'EM_C', 'EM_Q', 'EM_S',
+                'Title_0', 'Title_1', 'Title_2', 'Title_3', 'Pc_1', 'Pc_2', 'Pc_3']
+    y = pandas.DataFrame(train['Survived'])
 
+    score=CrossValidation.validate(train[features], 10, classifierCS, y)
+    print(score)
 
 start()
+testValidation()

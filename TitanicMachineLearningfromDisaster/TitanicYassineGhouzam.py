@@ -21,8 +21,8 @@ def prepareData(dataset):
     dataset = PrepareDataTitanic.fillMissingData(dataset)
     PrepareDataTitanic.fillMissingAge(dataset)
     PrepareDataTitanic.convertDataToNumerical(dataset)
-    PrepareDataTitanic.logScaleFare(dataset)
-    PrepareData.scaleData(dataset, ['Fare', 'Age'])
+    #PrepareDataTitanic.logScaleFare(dataset)
+    #PrepareData.scaleData(dataset, ['Fare', 'Age'])
     PrepareDataTitanic.analyseNameAndAddTitle(dataset)
     PrepareDataTitanic.analyseFamilySize(dataset)
     PrepareDataTitanic.prepareCabin(dataset)
@@ -62,7 +62,8 @@ def wrongPrediction(train, y, ytrainPrediction):
 def startModule():
     train = pandas.read_csv("Input/train.csv", index_col='PassengerId')
     test = pandas.read_csv("Input/test.csv", index_col='PassengerId')
-
+    test=prepareData(test)
+    test.to_csv('Input/testNumerical.csv', header= test.columns, sep=',')
     outliers = PrepareData.detectOutliners(train, 2, ["Age", "SibSp", "Parch", "Fare"])
     train = train.drop(outliers)
 
