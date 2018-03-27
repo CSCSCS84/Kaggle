@@ -1,87 +1,65 @@
 import numpy
 import pandas
-from seaborn.utils import sig_stars
-from sklearn.preprocessing import MinMaxScaler
-from collections import Counter
-from TitanicMachineLearningfromDisaster import LogisticRegressionCS
-from TitanicMachineLearningfromDisaster import PrepareDataTitanic
-from TitanicMachineLearningfromDisaster import PrepareData
 import seaborn as sns
 import matplotlib.pyplot as plt
-from sklearn.linear_model import LogisticRegression
-from sklearn.cross_validation import train_test_split
-from sklearn.metrics import confusion_matrix
 
 
-def featureAnalysisCorrelation(dataset):
+def generalAnalysis(dataset):
+    print(dataset.isnull().sum())
+    print(dataset.info())
+    print(dataset.describe())
+
+
+def printCorrelation(dataset):
     ordinal_features = ['Pclass', 'SibSp', 'Parch']
     nominal_features = ['Sex', 'Embarked']
     survived_feature = ['Survived']
     numerical_feature = ['Age', 'Fare']
-    print('Correlation')
     correlation = dataset[ordinal_features + nominal_features + survived_feature + numerical_feature].corr().round(
         2);
     print(correlation)
 
 
-def featureAnalysisPlots(dataset):
+def plotSurvivalProbability(dataset, features):
+    for f in features:
+        plot = sns.factorplot(x=f, y='Survived', data=dataset, kind='bar')
+        plot = plot.set_ylabels("survival probability")
 
 
-    sibSp=sns.factorplot(x='SibSp',y='Survived' ,data=dataset,kind='bar')
-    sibSp = sibSp.set_ylabels("survival probability")
-    plt.show();
-    sibSp = sns.factorplot(x='Pclass', y='Survived', data=dataset, kind='bar')
-    sibSp = sibSp.set_ylabels("survival probability")
-    plt.show();
-    sibSp = sns.factorplot(x='Pclass', y='Survived',hue='Sex', data=dataset, kind='bar')
-    sibSp = sibSp.set_ylabels("survival probability")
-    plt.show();
-    sibSp = sns.factorplot(x='Parch', y='Survived', data=dataset, kind='bar')
-    sibSp = sibSp.set_ylabels("survival probability")
-    plt.show();
-    sibSp = sns.factorplot(x='Sex', y='Survived', data=dataset, kind='bar')
-    sibSp = sibSp.set_ylabels("survival probability")
-    plt.show();
-    sibSp = sns.factorplot(x='Embarked', y='Survived', data=dataset, kind='bar')
-    sibSp = sibSp.set_ylabels("survival probability")
-    plt.show();
-    sibSp = sns.factorplot('Pclass',col='Embarked',data=dataset, kind='count')
-    sibSp = sibSp.set_ylabels("survival probability")
-    plt.show();
-    age = sns.FacetGrid(train, col='Survived')
-    age = age.map(sns.distplot, "Age")
-    plt.show();
-    g = sns.distplot(dataset["Fare"], color="m",label="Skewness : %.2f"%(dataset["Fare"].skew()))
-    g = g.legend(loc="best")
-    plt.show();
-
-def featureAnalysisTable(dataset):
-    print(dataset[['Sex','Survived']].groupby('Sex').mean());
+def plotSurvivalProbabilityHue(dataset, features, hue):
+    for f in features:
+        plot = sns.factorplot(x=f, y='Survived', hue=hue, data=dataset, kind='bar')
+        plot = plot.set_ylabels("survival probability")
+        plt.show()
 
 
+def plotSkewness(dataset, features):
+    for f in features:
+        plot = sns.distplot(dataset[f], color="m", label="Skewness : %.2f" % (dataset[f].skew()))
+        plot = plot.legend(loc="best")
+        plt.show()
 
-def analyseMissingValues(dataset):
-    print(dataset.isnull().sum())
-    print(dataset.info())
-    print(dataset.describe())
-    print(dataset['Fare'].isnull().sum())
-    print(dataset["Embarked"].isnull().sum())
 
-def analyseAge(dataset):
-    sibSp = sns.factorplot(x='Sex', y='Age', data=dataset, kind='box')
-    sibSp = sibSp.set_ylabels("Age")
-    plt.show();
-    sibSp = sns.factorplot(x='SibSp', y='Age', data=dataset, kind='box')
-    sibSp = sibSp.set_ylabels("Age")
-    plt.show();
-    sibSp = sns.factorplot(x='Parch', y='Age', data=dataset, kind='box')
-    sibSp = sibSp.set_ylabels("Age")
-    plt.show();
-    sibSp = sns.factorplot(x='Pclass', y='Age', data=dataset, kind='box')
-    sibSp = sibSp.set_ylabels("Age")
-    plt.show();
+def analyseAge(dataset, features):
+    for f in features:
+        plot = sns.factorplot(x=f, y='Age', data=dataset, kind='box')
+        plot = plot.set_ylabels("Age")
+        plt.show()
 
-def analyseTicket(dataset):
-    sibSp = sns.factorplot(x='Ticket', y='Survived', data=dataset, kind='bar')
-    sibSp = sibSp.set_ylabels("survival probability")
-    plt.show();
+
+def survivalProbabilityGroupBySex(dataset):
+    print(dataset[['Sex', 'Survived']].groupby('Sex').mean());
+
+
+train = pandas.read_csv("Data/Input/train.csv", index_col='PassengerId')
+test = pandas.read_csv("Data/Input/test.csv", index_col='PassengerId')
+features = ['SibSp', 'Pclass', 'Parch', 'Sex', 'Embarked']
+
+generalAnalysis(train)
+printCorrelation(train)
+survivalProbabilityGroupBySex(train)
+analyseAge(train, features=['Sex', 'SibSp', 'Parch', 'Pclass'])
+plotSurvivalProbability(train, features)
+plotSurvivalProbabilityHue(train, features, hue='Sex')
+plotSkewness(train, ['Fare'])
+analyseAge(train, features=['Sex', 'SibSp', 'Parch', 'Pclass'])
