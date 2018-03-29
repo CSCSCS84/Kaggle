@@ -3,32 +3,36 @@ import pandas
 from sklearn.preprocessing import MinMaxScaler
 from collections import Counter
 
-def scaleData(train_data,featuresToScale):
-    #print(train_data)
-    scaler = MinMaxScaler()
 
-    train_data[featuresToScale] = scaler.fit_transform(train_data[featuresToScale])
-    return train_data;
+class PrepareData:
+    filenameExtension = []
 
-#detect outliners using Tuking method
-def detectOutliners(train,numOfOutlines,features):
-    outliners=[];
-    firstQuantil=train.quantile(0.25)
-    thirdQuantil=train.quantile(0.75)
-    IQR=thirdQuantil-firstQuantil;
-    lower=firstQuantil-1.5*IQR;
-    upper=thirdQuantil+1.5*IQR;
+    def scaleData(self, data, features):
+        scaler = MinMaxScaler()
+        data[features] = scaler.fit_transform(data[features])
+        self.filenameExtension += '1'
 
-    outliers=[];
-    for f in features:
-        firstQuantil = train[f].quantile(0.25,interpolation='linear')
-        thirdQuantil = train[f].quantile(0.75,interpolation='linear')
-        IQR = thirdQuantil - firstQuantil;
-        lower = firstQuantil - 1.5 * IQR;
-        upper = thirdQuantil + 1.5 * IQR;
-        outliersfeature=train[(train[f]<lower) | (train[f]>upper)].index.values;
-        outliers.extend(outliersfeature)
-    outliersCount=Counter(outliers)
+    def dropOutliers(self, dataset, number, features):
+        outliers = self.detectOutliers(dataset, number, features)
+        train = dataset.drop(outliers)
+        self.filenameExtension += '2'
 
-    multiple_outliers= list( k for k, v in outliersCount.items() if v > numOfOutlines )
-    return multiple_outliers
+    # detect outliers using Tuking method
+    def detectOutliers(self, train, limitOfOutlierFeatures, features):
+        outliers = [];
+        for f in features:
+            bounds = self.calculateBounds(train, f)
+            outliersfeature = train[(train[f] < bounds[0]) | (train[f] > bounds[1])].index.values;
+            outliers.extend(outliersfeature)
+
+        outliersCount = Counter(outliers)
+        multiple_outliers = list(k for k, v in outliersCount.items() if v > limitOfOutlierFeatures)
+        return multiple_outliers
+
+    def calculateBounds(self, train, feature):
+        firstQuantil = train[feature].quantile(0.25, interpolation='linear')
+        thirdQuantil = train[feature].quantile(0.75, interpolation='linear')
+        IQR = thirdQuantil - firstQuantil
+        lowerBound = firstQuantil - 1.5 * IQR
+        upperBound = thirdQuantil + 1.5 * IQR
+        return [lowerBound, upperBound]
