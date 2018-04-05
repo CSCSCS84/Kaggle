@@ -24,13 +24,14 @@ def start(train,test, y):
     #y = pandas.DataFrame(train['Survived'])
     trainData = train
     testData = test
-    mc=MultipleClassifier.MultipleClassifier(getClassifiers())
+    mc=MultipleClassifier.MultipleClassifier(getClassifiersLeastCorrelated())
+    classifiers=[mc]
 
-    fitClassifiers(mc, trainData, y)
-    scores=crossValidateMultiple(mc, trainData, y, 5,10)
+    fitClassifiers(classifiers, trainData, y)
+    scores=crossValidate(classifiers, trainData, y, 10,10)
     for s in scores:
         print(s)
-    result=predict(mc, testData)
+    result=predict(classifiers, trainData)
 
 
     result.to_csv('Data/Output/PredictedResults%s.csv' % (fileNameExtension), header='PassengerId\tSurvived', sep=',')
@@ -43,23 +44,9 @@ def calcCorrelation(trainData,features):
     plt.show()
     correlation.to_csv('Correlation2.csv', header=features, sep=',')
 
-def fitClassifiers(multipleClassifier, trainData, y):
+def fitClassifiers(classifiers, trainData, y):
     for c in classifiers:
-        multipleClassifier.fit(trainData, y.values.ravel())
-
-def crossValidateMultiple(classifier, trainData, y, numOfValidations,k):
-    scores = []
-
-
-    meanSum=0
-    for i in range(0, numOfValidations):
-        score = CrossValidation.validate(trainData, k, classifier, y)
-        #print(score)
-        meanSum+= mean(score)
-    average=numpy.round(meanSum/numOfValidations,3)
-    scores.append(average)
-
-    return scores
+        c.fit(trainData, y.values.ravel())
 
 def crossValidate(classifiers, trainData, y, numOfValidations,k):
     scores = []
@@ -68,7 +55,7 @@ def crossValidate(classifiers, trainData, y, numOfValidations,k):
         meanSum=0
         for i in range(0, numOfValidations):
             score = CrossValidation.validate(trainData, k, c, y)
-            #print(score)
+            print(score)
             meanSum+= mean(score)
         average=numpy.round(meanSum/numOfValidations,3)
         scores.append(average)
@@ -94,6 +81,15 @@ def getClassifiers():
     classifiers.append(getRandomForestTuned())
     classifiers.append(getAdaboostTuned())
     classifiers.append(getDecisionTreeTuned())
+    classifiers.append(getKNeighborsTuned())
+    return classifiers
+
+def getClassifiersLeastCorrelated():
+    classifiers = []
+    classifiers.append(getLinearDiscriminantTuned())
+    classifiers.append(getLogisticRegressionTuned())
+    classifiers.append(getAdaboostTuned())
+    classifiers.append(getGradientBoostingTuned())
     classifiers.append(getKNeighborsTuned())
     return classifiers
 

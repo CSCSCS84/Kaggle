@@ -10,7 +10,7 @@ def validate(train, sizeOfSamples, classifier, y):
         sample = sample.sort_index();
         trainData = train.drop(sample.index)
         yTrainData = y.drop(sample.index)
-        classifier.fit(trainData, yTrainData)
+        classifier.fit(trainData, yTrainData.values.ravel())
         ySample = y.drop(trainData.index)
         score = classifier.score(sample, ySample)
         scores.append(score)

@@ -1,34 +1,10 @@
 import numpy
 import pandas
 from TitanicMachineLearningfromDisaster import LogisticRegressionCS
-from TitanicMachineLearningfromDisaster import PrepareDataTitanic
-from TitanicMachineLearningfromDisaster import PrepareData
-from TitanicMachineLearningfromDisaster import AnalyseDataTitanic
 from sklearn.linear_model import LogisticRegression
 from sklearn.cross_validation import train_test_split
 from sklearn.metrics import confusion_matrix
 
-
-def analyseData(dataset):
-    AnalyseDataTitanic.analyseMissingValues(dataset)
-    AnalyseDataTitanic.featureAnalysisPlots(train)
-    AnalyseDataTitanic.featureAnalysisPlots(train)
-    AnalyseDataTitanic.featureAnalysisTable(dataset)
-    AnalyseDataTitanic.analyseAge(dataset)
-
-def prepareData(dataset):
-    dataset[["Age", "SibSp", "Parch", "Fare"]] = dataset[["Age", "SibSp", "Parch", "Fare"]].astype(float)
-    dataset = PrepareDataTitanic.fillMissingData(dataset)
-    PrepareDataTitanic.fillMissingAge(dataset)
-    PrepareDataTitanic.convertDataToNumerical(dataset)
-    #PrepareDataTitanic.logScaleFare(dataset)
-    #PrepareData.scaleData(dataset, ['Fare', 'Age'])
-    PrepareDataTitanic.analyseNameAndAddTitle(dataset)
-    PrepareDataTitanic.analyseFamilySize(dataset)
-    PrepareDataTitanic.prepareCabin(dataset)
-    dataset = PrepareDataTitanic.prepareTicket(dataset)
-    dataset = PrepareDataTitanic.convertIndicatorValues(dataset)
-    return dataset
 
 def regression(classifier, train, test, y):
     classifier.fit(train, y)
@@ -60,20 +36,9 @@ def wrongPrediction(train, y, ytrainPrediction):
     return dataWrongPrediction;
 
 def startModule():
-    train = pandas.read_csv("Input/train.csv", index_col='PassengerId')
-    test = pandas.read_csv("Input/test.csv", index_col='PassengerId')
-    test=prepareData(test)
-    test.to_csv('Input/testNumerical.csv', header= test.columns, sep=',')
-    outliers = PrepareData.detectOutliners(train, 2, ["Age", "SibSp", "Parch", "Fare"])
-    train = train.drop(outliers)
+    train = pandas.read_csv("Data/Input/PreparedData/PreparedTrain.csv", index_col='PassengerId')
+    test = pandas.read_csv("Data/Input/PreparedData/PreparedTest.csv", index_col='PassengerId')
 
-    dataset = pandas.concat([train, test], axis=0)
-    dataset = prepareData(dataset)
-
-    train = dataset[dataset['Survived'].notna()]
-
-    test = dataset[dataset['Survived'].isna()]
-    # features=["Age",'Fare','Pclass','Sex','Single', 'SmallFamily', 'MediumFamily', 'LargeFamily','EM_C', 'EM_Q', 'EM_S','Title_0', 'Title_1', 'Title_2', 'Title_3']
 
     features = ['Age', 'Fare', 'Sex', 'Single', 'SmallFamily', 'MediumFamily', 'LargeFamily', 'EM_C', 'EM_Q', 'EM_S',
                 'Title_0', 'Title_1', 'Title_2', 'Title_3', 'Pc_1', 'Pc_2', 'Pc_3']
@@ -81,7 +46,7 @@ def startModule():
     train = train[features]
     test = test[features]
 
-    classifierCS = LogisticRegressionCS.LogisticRegressionCS(max_iter=20, tolerance=0.00001);
+    classifierCS = LogisticRegressionCS.LogisticRegressionCS(max_iter=1000, tolerance=0.00001);
     result = pandas.DataFrame(index=test.index)
     ytestCS = regression(classifierCS, train, test, y)
 
@@ -96,16 +61,8 @@ def startModule():
     printConfusionMatrix(classifier, train, y)
 
     ytrainPrediction = classifierCS.predict(train)
-    print(len(ytrainPrediction))
-    print(y)
+
 
     dataWrongPrediction = wrongPrediction(train, y, ytrainPrediction)
-
-    print(dataWrongPrediction.describe())
-
-    # dataWrongPrediction.to_csv('WrongPrediction.csv', header=True, sep=',')
-    train['Survived'] = y
-    train.to_csv('PreparedTrain.csv', header=True, sep=',')
-    test.to_csv('PreparedTest.csv', header=True, sep=',')
 
 startModule()

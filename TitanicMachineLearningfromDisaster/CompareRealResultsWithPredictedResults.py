@@ -50,6 +50,6 @@ def compare(realResults, predictedResults, testdataNumerical):
     printMeansOfPredictions(passengers[0], passengers[1], features)
 
 realResults = pandas.read_csv('Data/Output/Realresults.csv', delimiter='\t')
-predictedResults = pandas.read_csv('Data/Output/PredictedResults.csv', delimiter=',')
+predictedResults = pandas.read_csv('Data/Output/PredictedResultsABCEFGHI12.csv', delimiter=',')
 testdataNumerical = pandas.read_csv('Data/Input/testNumerical.csv', delimiter=',')
 compare(realResults, predictedResults, testdataNumerical)

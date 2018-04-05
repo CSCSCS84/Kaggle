@@ -5,7 +5,7 @@ from TitanicMachineLearningfromDisaster import PrepareData
 
 class PrepareDataTitanic:
     filenameExtension = []
-    dataPreparer = PrepareData.PrepareData()
+    preparer = PrepareData.PrepareData()
 
     def convertSexToNumerical(self, dataset):
         dataset['Sex'] = dataset['Sex'].map({'male': 0, 'female': 1})
@@ -89,7 +89,10 @@ class PrepareDataTitanic:
         dataset = self.fillMissingValues(dataset)
         self.fillMissingAge(dataset)
 
-        self.dataPreparer.dropOutliers(dataset, 2, ["Age", "SibSp", "Parch", "Fare"])
+
+        self.logScaleFare(dataset)
+        self.preparer.scaleData(dataset,['Age','Fare'])
+
 
         self.convertSexToNumerical(dataset)
         self.mapTitles(dataset)
@@ -104,15 +107,26 @@ class PrepareDataTitanic:
         self.filenameExtension.sort()
         extensionTitanic = ''.join(self.filenameExtension)
 
-        self.dataPreparer.filenameExtension.sort()
-        extension = ''.join(self.dataPreparer.filenameExtension)
+        self.preparer.filenameExtension.sort()
+        extension = ''.join(self.preparer.filenameExtension)
 
         return '%s%s' % (extensionTitanic, extension)
 
 
-train = pandas.read_csv("Data/Input/train.csv", index_col='PassengerId')
-dataPreparer = PrepareDataTitanic()
-train = dataPreparer.prepareData(train)
+train= pandas.read_csv("Data/Input/test.csv", index_col='PassengerId')
+test = pandas.read_csv("Data/Input/train.csv", index_col='PassengerId')
+dataset = pandas.concat([train, test], axis=0)
 
-extension = dataPreparer.fileExtension()
+preparerTitanic = PrepareDataTitanic()
+dataset = preparerTitanic.prepareData(dataset)
+
+train = dataset[dataset['Survived'].notna()]
+
+test = dataset[dataset['Survived'].isna()]
+
+extension = preparerTitanic.fileExtension()
+test.to_csv('Data/Input/PreparedData/PreparedTest_%s.csv' % (extension), header=True, sep=',')
+
+train=preparerTitanic.preparer.dropOutliers(train, 2, ["Age", "SibSp", "Parch", "Fare"])
+extension = preparerTitanic.fileExtension()
 train.to_csv('Data/Input/PreparedData/PreparedTrain_%s.csv' % (extension), header=True, sep=',')

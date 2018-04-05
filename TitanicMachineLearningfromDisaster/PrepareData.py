@@ -14,8 +14,10 @@ class PrepareData:
 
     def dropOutliers(self, dataset, number, features):
         outliers = self.detectOutliers(dataset, number, features)
-        train = dataset.drop(outliers)
+        dataset = dataset.drop(outliers)
+
         self.filenameExtension += '2'
+        return dataset
 
     # detect outliers using Tuking method
     def detectOutliers(self, train, limitOfOutlierFeatures, features):
