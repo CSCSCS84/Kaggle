@@ -5,8 +5,11 @@ import pandas
 
 class MultipleClassifier:
 
+    yPredictions=None;
+
     def __init__(self, classifiers):
         self.classifiers=classifiers
+
 
     def fit(self, trainData, y):
         for classifier in self.classifiers:
@@ -17,14 +20,14 @@ class MultipleClassifier:
         ySum = numpy.zeros((1, testData.shape[0]));
         for classifier in self.classifiers:
             yPred = classifier.predict(testData)
-            #print(yPred)
             ySum = ySum + yPred
             yResult[classifier.__class__.__name__] = yPred;
         a = len(self.classifiers) / 2
         ytrans = ySum.transpose()
+        self.yPredictions = yResult
         yPrediction = [0 if e <= len(self.classifiers) / 2 else 1 for e in ySum.transpose()]
         #yResult['FinalPrediction'] = yPrediction
-        yResult.to_csv('Data/Output/PredictedResultMultipleLeastCorrelated.csv', header=yResult.columns, sep=',')
+        #yResult.to_csv('Data/Output/PredictedResultMultipleLeastCorrelated.csv', header=yResult.columns, sep=',')
         return yPrediction
 
     def score(self, X, y):

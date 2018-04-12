@@ -18,23 +18,70 @@ import matplotlib.pyplot as plt
 from statistics import mean
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import StratifiedKFold
+from sklearn.ensemble import VotingClassifier
+from TitanicMachineLearningfromDisaster import ClassifierTuning
 
 def start(train,test, y):
 
-    #y = pandas.DataFrame(train['Survived'])
-    trainData = train
-    testData = test
-    mc=MultipleClassifier.MultipleClassifier(getClassifiersLeastCorrelated())
-    classifiers=[mc]
+    levelOnePrediction(train,test,y)
+    ##print(result)
+    #secondLevePrediction(train, test,y)
+
+def secondLevePrediction(train, test, y):
+    trainData = pandas.read_csv("Data/Output/FirstLevelResultsTrain%s.csv" % (fileNameExtension),
+                        index_col='PassengerId')
+
+    testData = pandas.read_csv("Data/Output/FirstLevelResultsTest%s.csv" % (fileNameExtension),
+                        index_col='PassengerId')
+    mc = MultipleClassifier.MultipleClassifier([getLogisticRegressionTuned()])
+    classifiers = [mc]
 
     fitClassifiers(classifiers, trainData, y)
-    scores=crossValidate(classifiers, trainData, y, 10,10)
-    for s in scores:
-        print(s)
-    result=predict(classifiers, trainData)
+    scores = crossValidate(classifiers, trainData, y, 2, 10)
 
+
+
+    yPredict = predict(classifiers, testData)
+    result = pandas.DataFrame(index=testData.index)
+    result['Survived']=yPredict
 
     result.to_csv('Data/Output/PredictedResults%s.csv' % (fileNameExtension), header='PassengerId\tSurvived', sep=',')
+
+def resultBySum(testData, classifiers):
+    yPrediction=testData[testData.columns]
+    dummy= testData.values
+    dummy=dummy.sum(axis=1)
+    yPrediction = [0 if e <= 5/ 2 else 1 for e in dummy.transpose()]
+    return yPrediction
+
+def levelOnePrediction(train,test,y):
+    # y = pandas.DataFrame(train['Survived'])
+    trainData = train
+    testData = test
+    mc = MultipleClassifier.MultipleClassifier([ClassifierTuning.getRandomForestTuned()])
+    classifiers = [mc]
+
+    fitClassifiers(classifiers, trainData, y)
+    scores = crossValidate(classifiers, trainData, y, 5, 10)
+    for s in scores:
+        print(s)
+    predict(classifiers, trainData)
+    mc.yPredictions.to_csv('Data/Output/FirstLevelResultsTrain%s.csv' % (fileNameExtension), header='PassengerId\tSurvived',
+                  sep=',')
+
+    result=predict(classifiers, testData)
+    mc.yPredictions.to_csv('Data/Output/FirstLevelResultsTest%s.csv' % (fileNameExtension),
+                           header='PassengerId\tSurvived',
+                           sep=',')
+
+    #return
+    result.to_csv('Data/Output/PredictedResults%s.csv' % (fileNameExtension), header='PassengerId\tSurvived', sep=',')
+
+def secondLevelClassifier():
+    return SVC(C=3, cache_size=200, class_weight=None, coef0=0.0,
+               decision_function_shape='ovr', degree=2, gamma=0.1, kernel='rbf',
+               max_iter=-1, probability=True, random_state=None, shrinking=True,
+               tol=0.001, verbose=False)
 
 def calcCorrelation(trainData,features):
     correlation = trainData[features].corr().round(
@@ -50,13 +97,12 @@ def fitClassifiers(classifiers, trainData, y):
 
 def crossValidate(classifiers, trainData, y, numOfValidations,k):
     scores = []
-
     for c in classifiers:
         meanSum=0
         for i in range(0, numOfValidations):
             score = CrossValidation.validate(trainData, k, c, y)
-            print(score)
             meanSum+= mean(score)
+            print(score)
         average=numpy.round(meanSum/numOfValidations,3)
         scores.append(average)
 
@@ -87,8 +133,9 @@ def getClassifiers():
 def getClassifiersLeastCorrelated():
     classifiers = []
     classifiers.append(getLinearDiscriminantTuned())
-    classifiers.append(getLogisticRegressionTuned())
-    classifiers.append(getAdaboostTuned())
+    #classifiers.append(getLogisticRegressionTuned())
+    #classifiers.append(getAdaboostTuned())
+    #classifiers.append(getRandomForestTuned())
     classifiers.append(getGradientBoostingTuned())
     classifiers.append(getKNeighborsTuned())
     return classifiers
@@ -102,27 +149,6 @@ def getRandomForestTuned():
             oob_score=False, random_state=None, verbose=0,
             warm_start=False)
 
-def randomForestTuning(train, y):
-    kfold = StratifiedKFold(n_splits=10)
-    RFC = RandomForestClassifier()
-
-    ## Search grid for optimal parameters
-    rf_param_grid = {"max_depth": [None],
-                     "max_features": [4],
-                     "min_samples_split": [ 3],
-                     "min_samples_leaf": [3],
-                     "bootstrap": [False],
-                     "n_estimators": [80,90,100,110,120],
-                     "criterion": ["gini"]}
-
-    gsRFC = GridSearchCV(RFC, param_grid=rf_param_grid, cv=kfold, scoring="accuracy", n_jobs=4, verbose=1)
-
-    gsRFC.fit(train, y)
-
-    RFC_best = gsRFC.best_estimator_
-    print(RFC_best)
-    # Best score
-    print(gsRFC.best_score_)
 
 
 def getAdaboostTuned():
@@ -334,7 +360,24 @@ def getLinearDiscriminantTuned():
     return LinearDiscriminantAnalysis()
 
 def getLogisticRegressionTuned():
-    return LogisticRegression(random_state=0, max_iter=5000, fit_intercept=False, tol=0.00001)
+    return LogisticRegression(random_state=0, max_iter=10000, fit_intercept=False, tol=0.00001)
+
+
+def votingClassifier(train, y_train,test):
+    votingC = VotingClassifier(estimators=[('rfc', getGradientBoostingTuned()), ('extc', getAdaboostTuned()),
+                                           ('svc', getLinearDiscriminantTuned()), ('adac', getLogisticRegressionTuned()), ('gbc', getKNeighborsTuned())], voting='soft',
+                               n_jobs=4)
+
+    votingC = votingC.fit(train, y_train)
+    test_Survived = pandas.Series(votingC.predict(test), name="Survived")
+    yPredicted=votingC.predict(test)
+    result=pandas.DataFrame(index=test.index)
+    result['Survived']=yPredicted
+    #print(test_Survived)
+    #results = pandas.concat([IDtest, test_Survived], axis=1)
+
+    #results.to_csv("ensemble_python_voting.csv", index=False)#
+    result.to_csv('Data/Output/PredictedResultsVotingClassifier.csv' , header='PassengerId\tSurvived', sep=',')
 
 fileNameExtension = 'ABCEFGHI12'
 fileNameExtensionTest = 'ABCEFGHI1'
@@ -360,5 +403,5 @@ y=train['Survived']
 trainData = train[features]
 testData = test[features]
 start(trainData,testData,y)
-
+#votingClassifier(trainData,y,testData)
 
