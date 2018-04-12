@@ -1,7 +1,4 @@
-
-
 class TunedClassifier():
-
     def __init__(self, classifier=None, kfoldScore=None):
         if classifier is None:
             self.classifier = None
