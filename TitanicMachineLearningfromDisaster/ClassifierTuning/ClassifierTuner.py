@@ -37,3 +37,14 @@ def getDecisionTreeGrid():
             "presort": [False, True],
             "criterion": ['entropy']
             }
+
+def getSVCGrid():
+    return {'kernel': ['rbf'],
+                      'gamma': [0.006],
+                      'C': [2],
+                      'degree':[1,2],
+                      'random_state':[True],
+                      'coef0':[0.0],
+                      'cache_size':[85,90],
+                      'class_weight':['balanced']
+            }
