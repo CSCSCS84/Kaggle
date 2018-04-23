@@ -1,4 +1,5 @@
 from statistics import mean
+from statistics import variance
 import numpy
 import pandas
 from sklearn.ensemble import VotingClassifier
@@ -7,14 +8,15 @@ from TitanicMachineLearningfromDisaster.ClassifierTuning import ClassifierFactor
 from TitanicMachineLearningfromDisaster import MultipleClassifier
 from TitanicMachineLearningfromDisaster.TitanicInstance import TitanicInstanceCreator
 from sklearn.model_selection import KFold, cross_val_score
-from statistics import mean
 from sklearn.model_selection import StratifiedKFold
+from sklearn.model_selection import cross_validate
 
 
 def start(titanic, fileNameExtension, featureNumber):
     result = firstLevelPrediction(titanic, fileNameExtension, featureNumber)
     # return
-    result.to_csv('Data/Output/PredictedResultsFirstLevel%s.csv' % (fileNameExtension), header='PassengerId\tSurvived', sep=',')
+    result.to_csv('Data/Output/PredictedResultsFirstLevel%s.csv' % (fileNameExtension), header='PassengerId\tSurvived',
+                  sep=',')
     # secondLevePrediction(train, test,y)
 
 
@@ -48,7 +50,7 @@ def calcCrossValidationScore(classifiers, train, y):
         scores.append(mean(s))
 
         print(c.__class__.__name__)
-        #print(c)
+        # print(c)
         print(mean(s))
     return scores
 
@@ -60,10 +62,13 @@ def votingClassifier(titanic, fileNameExtension, featureNumber):
     votingC = VotingClassifier(estimators=list(est), voting='soft', n_jobs=4)
 
     votingC = votingC.fit(titanic.train, titanic.y)
-    k_fold = StratifiedKFold(n_splits=10)
-    score = cross_val_score(votingC, titanic.train, titanic.y, cv=k_fold, n_jobs=1)
-    print(mean(score))
+    k_fold = StratifiedKFold(n_splits=10, shuffle=True, random_state=1)
 
+    score = cross_val_score(votingC, titanic.train, titanic.y, cv=k_fold, n_jobs=1)
+
+    print(score)
+    print(mean(score))
+    print(variance(score))
     test_Survived = pandas.Series(votingC.predict(titanic.test), name="Survived")
     yPredicted = votingC.predict(titanic.test)
     result = pandas.DataFrame(index=titanic.test.index)
@@ -71,16 +76,18 @@ def votingClassifier(titanic, fileNameExtension, featureNumber):
     result['Survived'] = yPredicted
     return result
 
+
 def getClassifiers(fileNameExtension, featureNumber):
     classifiers = []
 
-    classifiers.append(ClassifierFactory.constructClassifier("SVC", fileNameExtension, featureNumber, "0.9787"))
+    classifiers.append(
+        ClassifierFactory.constructClassifier("DecisionTreeClassifier", fileNameExtension, featureNumber, "0.8361"))
     return classifiers
 
 
 def getClassifiers00(fileNameExtension, featureNumber):
     classifiers = []
-    classifiers.append(ClassifierFactory.constructClassifier("SVC", fileNameExtension, featureNumber, "0.8309"))
+    classifiers.append(ClassifierFactory.constructClassifier("SVC", fileNameExtension, featureNumber, "0.8013"))
     classifiers.append(
         ClassifierFactory.constructClassifier("AdaBoostClassifier", fileNameExtension, featureNumber, "0.8241"))
     classifiers.append(
@@ -103,6 +110,7 @@ def getClassifiers00(fileNameExtension, featureNumber):
     classifiers.append(
         ClassifierFactory.constructClassifier("DecisionTreeClassifier", fileNameExtension, featureNumber, "0.8320"))
     return classifiers
+
 
 def getClassifiers2(fileNameExtension, featureNumber):
     classifiers = []
@@ -129,12 +137,11 @@ def getClassifiers2(fileNameExtension, featureNumber):
     return classifiers
 
 
-fileNameExtension = 'ABCEFGHIJKL12'
-fileNameExtensionTest = 'ABCEFGHIJKL1'
-featureNumber = 1
+fileNameExtension = 'ABCFGHIJKLOP'
+fileNameExtensionTest = 'ABCFGHIJKLOP'
+featureNumber = 2
 titanic = TitanicInstanceCreator.createInstance(fileNameExtension, fileNameExtensionTest, featureNumber)
 
-
-#start(titanic, fileNameExtension, featureNumber=1)
+# start(titanic, fileNameExtension, featureNumber=1)
 result = votingClassifier(titanic, fileNameExtension, featureNumber)
 result.to_csv('Data/Output/PredictedResultsVotingClassifier.csv', header='PassengerId\tSurvived', sep=',')

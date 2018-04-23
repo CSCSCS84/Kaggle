@@ -1,5 +1,5 @@
 class Family:
-    def __init__(self, name=None, familiysize=None, ticket=None, numOfDead=None, numOfSurvived=None):
+    def __init__(self, name=None, familiysize=None, ticketnumber=None, numOfDead=None, numOfSurvived=None):
         if name is None:
             self.name = ''
         else:
@@ -10,10 +10,10 @@ class Family:
         else:
             self.familiysize = familiysize
 
-        if ticket is None:
-            self.ticket = ''
+        if ticketnumber is None:
+            self.ticketnumber = 0
         else:
-            self.ticket = ticket
+            self.ticketnumber = ticketnumber
 
         if numOfDead is None:
             self.numOfDead = 0
@@ -24,13 +24,13 @@ class Family:
         else:
             self.numOfSurvived = numOfSurvived
     def __hash__(self):
-        return hash((self.name, self.familiysize, self.ticket))
+        return hash((self.name, self.familiysize, self.ticketnumber))
 
     def __eq__(self, obj):
-        if (self.name == obj.name) & (self.familiysize == obj.familiysize) & (self.ticket == obj.ticket):
+        if (self.name == obj.name) and (self.familiysize == obj.familiysize) and (self.ticketnumber == obj.ticketnumber):
             return True
         else:
             return False
 
     def __str__(self):
-        return "%s %s %s %s %s" % (self.name, self.familiysize, self.ticket, self.numOfDead, self.numOfSurvived)
+        return "%s %s %s %s %s" % (self.name, self.familiysize, self.ticketnumber, self.numOfDead, self.numOfSurvived)
