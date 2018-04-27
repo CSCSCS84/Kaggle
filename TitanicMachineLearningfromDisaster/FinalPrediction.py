@@ -59,9 +59,10 @@ def votingClassifier(titanic, fileNameExtension, featureNumber):
     classifiers = getClassifiers(fileNameExtension, featureNumber)
     classifierName = [c.__class__.__name__ for c in classifiers]
     est = zip(classifierName, classifiers)
-    votingC = VotingClassifier(estimators=list(est), voting='soft', n_jobs=4)
+    votingC = VotingClassifier(estimators=list(est), voting='hard', n_jobs=4)
 
     votingC = votingC.fit(titanic.train, titanic.y)
+
     k_fold = StratifiedKFold(n_splits=10, shuffle=True, random_state=1)
 
     score = cross_val_score(votingC, titanic.train, titanic.y, cv=k_fold, n_jobs=1)
@@ -81,13 +82,13 @@ def getClassifiers(fileNameExtension, featureNumber):
     classifiers = []
 
     classifiers.append(
-        ClassifierFactory.constructClassifier("DecisionTreeClassifier", fileNameExtension, featureNumber, "0.8361"))
+        ClassifierFactory.constructClassifier("LogisticRegression", fileNameExtension, featureNumber, "0.8032"))
     return classifiers
 
 
 def getClassifiers00(fileNameExtension, featureNumber):
     classifiers = []
-    classifiers.append(ClassifierFactory.constructClassifier("SVC", fileNameExtension, featureNumber, "0.8013"))
+    classifiers.append(ClassifierFactory.constructClassifier("SVC", fileNameExtension, featureNumber, "0.7864"))
     classifiers.append(
         ClassifierFactory.constructClassifier("AdaBoostClassifier", fileNameExtension, featureNumber, "0.8241"))
     classifiers.append(
@@ -137,11 +138,14 @@ def getClassifiers2(fileNameExtension, featureNumber):
     return classifiers
 
 
-fileNameExtension = 'ABCFGHIJKLOP'
-fileNameExtensionTest = 'ABCFGHIJKLOP'
-featureNumber = 2
+fileNameExtension = 'ABCFGHIJKPQQRTUV2'
+fileNameExtensionTest = 'ABCFGHIJKPQQRTUV'
+featureNumber = 6
 titanic = TitanicInstanceCreator.createInstance(fileNameExtension, fileNameExtensionTest, featureNumber)
 
-# start(titanic, fileNameExtension, featureNumber=1)
+#print(titanic.test.isnull().sum())
+#print(titanic.test)
+#start(titanic, fileNameExtension, featureNumber=2)
+
 result = votingClassifier(titanic, fileNameExtension, featureNumber)
 result.to_csv('Data/Output/PredictedResultsVotingClassifier.csv', header='PassengerId\tSurvived', sep=',')
