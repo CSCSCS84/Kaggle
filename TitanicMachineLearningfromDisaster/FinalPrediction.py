@@ -82,7 +82,7 @@ def getClassifiers(fileNameExtension, featureNumber):
     classifiers = []
 
     classifiers.append(
-        ClassifierFactory.constructClassifier("LogisticRegression", fileNameExtension, featureNumber, "0.8032"))
+        ClassifierFactory.constructClassifier("DecisionTreeClassifier", fileNameExtension, featureNumber, "0.8371"))
     return classifiers
 
 
@@ -138,9 +138,9 @@ def getClassifiers2(fileNameExtension, featureNumber):
     return classifiers
 
 
-fileNameExtension = 'ABCFGHIJKPQQRTUV2'
-fileNameExtensionTest = 'ABCFGHIJKPQQRTUV'
-featureNumber = 6
+fileNameExtension = 'ABCFGHIJKPQQRTUVY2'
+fileNameExtensionTest = 'ABCFGHIJKPQQRTUVY'
+featureNumber = 8
 titanic = TitanicInstanceCreator.createInstance(fileNameExtension, fileNameExtensionTest, featureNumber)
 
 #print(titanic.test.isnull().sum())
