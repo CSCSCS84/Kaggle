@@ -82,7 +82,7 @@ def getClassifiers(fileNameExtension, featureNumber):
     classifiers = []
 
     classifiers.append(
-        ClassifierFactory.constructClassifier("DecisionTreeClassifier", fileNameExtension, featureNumber, "0.8371"))
+        ClassifierFactory.constructClassifier("BernoulliNB", fileNameExtension, featureNumber, "0.7805"))
     return classifiers
 
 
@@ -138,9 +138,9 @@ def getClassifiers2(fileNameExtension, featureNumber):
     return classifiers
 
 
-fileNameExtension = 'ABCFGHIJKPQQRTUVY2'
-fileNameExtensionTest = 'ABCFGHIJKPQQRTUVY'
-featureNumber = 8
+fileNameExtension = 'ABCFGHIJKPRTVYQQU'
+fileNameExtensionTest = 'ABCFGHIJKPRTVYQQU'
+featureNumber = 9
 titanic = TitanicInstanceCreator.createInstance(fileNameExtension, fileNameExtensionTest, featureNumber)
 
 #print(titanic.test.isnull().sum())
