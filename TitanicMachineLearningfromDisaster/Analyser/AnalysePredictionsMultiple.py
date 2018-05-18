@@ -31,13 +31,13 @@ def calcLeastCorrelated(correlation, classifiers,num):
     print(smallestValue)
 
 
-result = pandas.read_csv("Data/Output/PredictedResultMultipleTrain.csv",
+result = pandas.read_csv("../Data/Output/PredictedResultsFirstLevelABCEFGHI12.csv",
                          index_col='PassengerId')
 classifiers = ['SVC', 'ExtraTreesClassifier', 'GradientBoostingClassifier', 'MLPClassifier','AdaBoostClassifier',
                'LinearDiscriminantAnalysis', 'LogisticRegression', 'RandomForestClassifier',
                 'KNeighborsClassifier']
-classifiersBest=['LinearDiscriminantAnalysis', 'LogisticRegression', 'AdaBoostClassifier', 'DecisionTreeClassifier', 'KNeighborsClassifier']
+#classifiersBest=['LinearDiscriminantAnalysis', 'LogisticRegression', 'AdaBoostClassifier', 'DecisionTreeClassifier', 'KNeighborsClassifier']
 
 correlation=calcCorrelationOfClassifiers(result, classifiers)
 
-calcLeastCorrelated(correlation,classifiers,5)
+calcLeastCorrelated(correlation,classifiers,9)

@@ -22,3 +22,21 @@ def getFeatures(fileNameExtensionTrain, featureNumber):
     text_file = open("%s" % (filename), "r")
     features = text_file.read().replace('\n', '').split(',')
     return features
+
+def getOriginalTrainData():
+    filename = FilenameBuilder.getOriginalTrainPath()
+    train = pandas.read_csv(filename,
+                            index_col='PassengerId')
+    return train
+
+def getOriginalTestData():
+    filename = FilenameBuilder.getOriginalTestPath()
+    test = pandas.read_csv(filename,
+                            index_col='PassengerId')
+    return test
+
+def getOriginalFeatures():
+    filename = FilenameBuilder.getOriginalFeaturesPath()
+    text_file = open("%s" % (filename), "r")
+    features = text_file.read().replace('\n', '').split(',')
+    return features

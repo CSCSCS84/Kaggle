@@ -1,5 +1,3 @@
-import numpy
-import pandas
 from sklearn.preprocessing import MinMaxScaler
 from collections import Counter
 

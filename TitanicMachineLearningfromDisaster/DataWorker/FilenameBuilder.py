@@ -18,6 +18,30 @@ def getFeatureFilename(fileNameExtensionTrain, featureNumber):
     definitions.ROOT_DIR, fileNameExtensionTrain, featureNumber)
     return filename
 
+def getIncorrectPredictionFilename(fileNameExtensionTrain,featureNumber):
+    filename01 = "%s/Data/Output/Incorrect01%s_%s.csv" % (
+        definitions.ROOT_DIR, fileNameExtensionTrain, featureNumber)
+
+    filename10 = "%s/Data/Output/Incorrect10%s_%s.csv" % (
+        definitions.ROOT_DIR, fileNameExtensionTrain, featureNumber)
+
+    return [filename01,filename10]
+
 
 def getClassifierPath():
-    return "%s/TunedClassifiers" % (definitions.ROOT_DIR)
+    return "%s/Data/TunedClassifiers" % (definitions.ROOT_DIR)
+
+def getOriginalDataPath():
+    return "%s/Data/Input" % (definitions.ROOT_DIR)
+
+def getOriginalTrainPath():
+    return "%s/train.csv" % (getOriginalDataPath())
+
+def getOriginalTestPath():
+    return "%s/test.csv" % (getOriginalDataPath())
+
+def getOriginalFeaturesPath():
+    return "%s/features.txt" % (getOriginalDataPath())
+
+def getRootPath():
+    return "%s" % (definitions.ROOT_DIR)

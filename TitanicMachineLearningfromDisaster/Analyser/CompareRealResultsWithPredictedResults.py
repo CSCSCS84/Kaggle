@@ -1,10 +1,11 @@
 import numpy
 import pandas
 
+
 def printMeansOfPredictions(correctPrediction, incorrectPrediction, features):
     print('Mean values of the features: correct vs. incorrect')
     for f in features:
-        print('%s: %.2f vs. %.2f' % (f,correctPrediction[f].mean(),incorrectPrediction[f].mean()))
+        print('%s: %.2f vs. %.2f' % (f, correctPrediction[f].mean(), incorrectPrediction[f].mean()))
 
 
 def getPassengers(passengerIds, testdata):
@@ -20,26 +21,50 @@ def getPassengers(passengerIds, testdata):
 
     return [correctPrediction, incorrectPrediction]
 
+
 def checkPredition(realResults, predictedResults):
-    incorrectPrediction = []
-    correctPrediction = []
+    incorrectPredictionMen = []
+    correctPredictionMen = []
+    incorrectPredictionWomen = []
+    correctPredictionWomen = []
     for index, row in realResults.iterrows():
+
         status = row['Survived']
         passenger = predictedResults.ix[index]
         predictedStatus = passenger['Survived']
 
         if status == predictedStatus:
-            correctPrediction.append(row['PassengerId'])
-        else:
-            incorrectPrediction.append(row['PassengerId'])
 
-    return [correctPrediction, incorrectPrediction]
+            if row['Sex']==0:
+                correctPredictionMen.append(row['PassengerId'])
+            else:
+                correctPredictionWomen.append(row['PassengerId'])
+        else:
+            if row['Sex'] == 0:
+                incorrectPredictionMen.append(row['PassengerId'])
+            else:
+                incorrectPredictionWomen.append(row['PassengerId'])
+
+
+    return [correctPredictionMen, incorrectPredictionMen,correctPredictionWomen,incorrectPredictionWomen]
+
 
 def compare(realResults, predictedResults, testdataNumerical):
-
     predictions = checkPredition(realResults, predictedResults)
-    print("Correct Prediction: %.f" % (len(predictions[0])))
-    print("Incorrect Prediction: %.f" % (len(predictions[1])))
+    print("Correct Prediction Men: %.f" % (len(predictions[0])))
+    print("Incorrect Prediction Men: %.f" % (len(predictions[1])))
+    print("Score Men %.4f" % (len(predictions[0])/(len(predictions[0])+len(predictions[1]))))
+
+    print("Correct Prediction Women: %.f" % (len(predictions[2])))
+    print("Incorrect Prediction Women: %.f" % (len(predictions[3])))
+    print("Score %.4f" % (len(predictions[2]) / (len(predictions[2]) + len(predictions[3]))))
+
+    print("Correct Prediction: %.f" % (len(predictions[0])+len(predictions[2])))
+    print("Incorrect Prediction: %.f" % (len(predictions[1])+len(predictions[3])))
+
+    correct=len(predictions[0])+len(predictions[2])
+    incorrect=len(predictions[0])+len(predictions[1])+len(predictions[2])+len(predictions[3])
+    print("Score %.4f" % (correct/incorrect))
 
     passengers = getPassengers(predictions[1], testdataNumerical)
 
@@ -47,9 +72,15 @@ def compare(realResults, predictedResults, testdataNumerical):
     features = features[features != 'PassengerId']
     features = features[features != 'Name']
     features = features[features != 'Cabin']
-    printMeansOfPredictions(passengers[0], passengers[1], features)
+    #printMeansOfPredictions(passengers[0], passengers[1], features)
 
-realResults = pandas.read_csv('Data/Output/Realresults.csv', delimiter='\t')
-predictedResults = pandas.read_csv('Data/Output/PredictedResultsABCEFGHI12.csv', delimiter=',')
-testdataNumerical = pandas.read_csv('Data/Input/testNumerical.csv', delimiter=',')
-compare(realResults, predictedResults, testdataNumerical)
+
+
+
+
+realResults = pandas.read_csv('../Data/Output/Realresults.csv', delimiter=',')
+predictedResults = pandas.read_csv('../Data/Output/NaiveBayesClassifier.csv', delimiter=',')
+testdataNumerical = pandas.read_csv('../Data/Input/PreparedData/ABCEFGHIJK12/PreparedTest_ABCEFGHIJK1.csv',
+                                    delimiter=',')
+incorrect=compare(realResults, predictedResults, testdataNumerical)
+print(incorrect)

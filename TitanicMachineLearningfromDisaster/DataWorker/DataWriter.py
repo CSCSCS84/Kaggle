@@ -9,6 +9,10 @@ def writeTunedClassifierToJson(tunedClassifier, fileNameExtension, featureNumber
         path, classifierName, classifierName, fileNameExtension, featureNumber, tunedClassifier.kfoldScore)
     f = open(filename, "w")
 
-    classifierJson = json.dumps(tunedClassifier.classifier.get_params())
+    params=tunedClassifier.classifier.get_params()
+    if classifierName == 'AdaBoostClassifier':
+        params.pop("base_estimator")
+
+    classifierJson = json.dumps(params)
     f.write(classifierJson)
     f.close()
