@@ -1,11 +1,12 @@
-#some python pandas training
+# some python pandas training
 import pandas as pd
+
 
 def analyse_data(data):
     print(covid_data.head())
     print(covid_data.loc[200])
     print()
-    print(covid_data.iloc[201])d
+    print(covid_data.iloc[201])
     # see the datatypes
     print(covid_data.dtypes)
     # check for is null values
@@ -26,7 +27,6 @@ def make_death_col_categorial(data):
     data['death_yn'] = data['death_yn'].astype('category')
     data["death_yn"] = data["death_yn"].cat.codes
     print()
-
 
 
 def replace_values(data):
@@ -55,16 +55,3 @@ def read_data(nrwos):
 covid_data = read_data(nrwos=10000)
 clean_data(covid_data)
 print(covid_data.head())
-
-
-
-
-
-
-
-
-
-
-
-
-
