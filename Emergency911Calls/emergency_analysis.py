@@ -76,7 +76,7 @@ date_ems = df[df["Reason"] == "EMS"]
 date_ems_group = date_ems.groupby(["Date", "Reason"]).count()
 # date_ems_group["zip"].plot()
 # plt.show()
-# print(date_ems_group.head())
+m# print(date_ems_group.head())
 
 date_hour_group = df.groupby(["WeekDay", "Hour"]).count()["Reason"].unstack(level=-1)
 # sns.heatmap(date_hour_group)
