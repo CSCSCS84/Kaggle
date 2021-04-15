@@ -10,8 +10,8 @@ import sys
 
 start = default_timer()
 pd.options.display.max_columns = 40
-nrows = 100000
-#nrows=sys.maxsize
+#nrows = 100000
+nrows=sys.maxsize
 genome_scores = rc.read_and_clean_genome_scores(nrows)
 genome_tags = rc.read_and_clean_genome_tags(nrows)
 link = rc.read_and_clean_link(nrows)
@@ -66,10 +66,26 @@ genres_cumsum.plot.area(stacked=True,figsize=(10,5))
 print(cumsum_of_movies.head(10))
 plt.plot(cumsum_of_movies.loc[:,"cumsum of movies"],marker='o', markerfacecolor='black',markersize=5,label="CumSum of Movies")
 
-plt.set_cmap('gray')
-#plt.figure(figsize=(15,5))
+
 plt.xlabel('Year', fontsize=12)
 plt.ylabel('Cumulative number of movies-genre', fontsize=12)
 plt.title('Total movies-genre',fontsize=17)
 plt.legend(loc="upper left", ncol=2)
+
+#movies per genre
+print(movie.info())
+movies_per_genre=movie.iloc[:,3:].sum()
+print("movies per genre")
+print(type(movies_per_genre))
+print(movies_per_genre)
+print(movies_per_genre.describe())
+#print(movies_per_genre)
+plt.show()
+sns.barplot(x=movies_per_genre.index,y=movies_per_genre.values)
+#make room for the labels
+plt.gcf().subplots_adjust(bottom=0.25)
+plt.xticks(rotation='vertical')
+plt.xlabel('Genre', fontsize=12)
+plt.ylabel('Number of movies tagged', fontsize=12)
+plt.title('Movies per genre tag',fontsize=17)
 plt.show()
