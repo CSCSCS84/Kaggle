@@ -23,12 +23,12 @@ def read_and_clean_link(nrwosValue):
 
 
 def read_and_clean_movie(nrwosValue):
-    movie = pd.read_csv("data//movie.csv", nrows=nrwosValue)
-    movie.dropna()
+    movies = pd.read_csv("data//movie.csv", nrows=nrwosValue)
+    movies.dropna()
 
-    movie.loc[:, "year"] = movie.loc[:, "title"].apply(extract_year_and_name_of_title)
-    movie.loc[:, "year"] = pd.to_datetime(movie.loc[:, "year"], format='%Y')
-    return movie
+    movies.loc[:, "year"] = movies.loc[:, "title"].apply(extract_year_and_name_of_title)
+    movies.loc[:, "year"] = pd.to_datetime(movies.loc[:, "year"], format='%Y')
+    return movies
 
 
 def read_and_clean_ratings(nrwosValue):
@@ -53,54 +53,17 @@ def extract_year_and_name_of_title(title):
         return
     return year
 
+def extract_genres(movies):
+    dummies_for_genre = movies.genres.str.get_dummies().astype(bool)
+    movies_with_genres = movies.join(dummies_for_genre)
+    movies_with_genres.drop("genres", inplace=True, axis=1)
+    return movies_with_genres
 
-def extract_genre_from_row(genres_from_movie, genres):
-    genres_from_row = genres_from_movie.split("|")
-    print(genres_from_row)
-    genres.update(genres_from_row)
 
 
 def get_all_genres(movies):
     genres_list = movies.genres.str.split('|').to_list()
-    s = set()
-    [s.update(e) for e in genres_list]
-    return s
+    genres_set = set()
+    [genres_set.update(e) for e in genres_list]
+    return genres_set
 
-
-def extract_genres(movies):
-    dummies = movies.genres.str.get_dummies().astype(bool)
-
-    # print(dummies)
-    # print(type(dummies))
-    movies = movies.join(dummies)
-    # print(movies.head(10))
-    movies.drop("genres", inplace=True, axis=1)
-    # print(movies)
-    return movies
-    # movies.loc[:,"genres"].apply(extract_genre_from_row,genres=genres_set)
-
-    # return s
-
-
-def group_by_year_and_genre(movies, genres):
-    df = pd.DataFrame(index=movies["year"].unique())
-    df.sort_index(inplace=True)
-    print(df.info())
-    # grouped_movies=movies.groupyby(["year"])
-    print(movies.info())
-    for genre in genres:
-        df[genre]=movies.loc[:, ["year", genre]].groupby(["year"]).sum()
-        df.loc[:,genre]=df.loc[:,genre].cumsum()
-        # print(movies[genre])
-    return df
-    #print(df.head())
-
-def cumsum_of_movies(movies):
-    cumsum_of_movies=pd.DataFrame(index=movies["year"].unique())
-    cumsum_of_movies.sort_index(inplace=True)
-    #cumsum_of_movies["movies_per_year"]=
-    #print("movies per year")
-    #print(movies.groupby("year").count())
-    cumsum_of_movies["cumsum of movies"]=movies.groupby("year").count().loc[:,"movieId"]
-    cumsum_of_movies.loc[:, "cumsum of movies"] = cumsum_of_movies.loc[:, "cumsum of movies"].cumsum()
-    return cumsum_of_movies
