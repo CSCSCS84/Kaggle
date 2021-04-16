@@ -12,8 +12,8 @@ import sys
 
 start = default_timer()
 pd.options.display.max_columns = 40
-nrows = 10000
-#nrows=sys.maxsize
+#nrows = 10000
+nrows=sys.maxsize
 genome_scores = rc.read_and_clean_genome_scores(nrows)
 genome_tags = rc.read_and_clean_genome_tags(nrows)
 link = rc.read_and_clean_link(nrows)
@@ -46,17 +46,20 @@ def number_of_movies_and_ratings():
 
 # Plot Cumulative number of movies, in total and per genre.
 def plot_cumsum_of_movies_and_genres(movies):
-    movies_cumsum = movie_lens.analyser.cumsum_of_movies(movies)
-    plt.plot(movies_cumsum.loc[:, "cumsum of movies"], marker='o', markerfacecolor='black', markersize=5,
-             label="CumSum of Movies")
-
     plt.style.use('seaborn')
+
+
+
     genres_cumsum = movie_lens.analyser.group_by_year_and_genre(movies, genres)
     genres_cumsum.plot.area(stacked=True, figsize=(10, 5))
     plt.xlabel('Year', fontsize=12)
     plt.ylabel('Cumulative number of movies-genre', fontsize=12)
     plt.title('Total movies-genre', fontsize=17)
     plt.legend(loc="upper left", ncol=2)
+
+    movies_cumsum = movie_lens.analyser.cumsum_of_movies(movies)
+    plt.plot(movies_cumsum.loc[:, "cumsum of movies"], marker='o', markerfacecolor='black', markersize=5,
+             label="CumSum of Movies")
     plt.show()
 
 
