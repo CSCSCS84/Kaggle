@@ -12,8 +12,8 @@ import sys
 
 start = default_timer()
 pd.options.display.max_columns = 40
-#nrows = 10000
-nrows=sys.maxsize
+nrows = 10000
+#nrows = sys.maxsize
 genome_scores = rc.read_and_clean_genome_scores(nrows)
 genome_tags = rc.read_and_clean_genome_tags(nrows)
 link = rc.read_and_clean_link(nrows)
@@ -48,8 +48,6 @@ def number_of_movies_and_ratings():
 def plot_cumsum_of_movies_and_genres(movies):
     plt.style.use('seaborn')
 
-
-
     genres_cumsum = movie_lens.analyser.group_by_year_and_genre(movies, genres)
     genres_cumsum.plot.area(stacked=True, figsize=(10, 5))
     plt.xlabel('Year', fontsize=12)
@@ -77,8 +75,72 @@ def plot_movies_per_genre(movies):
 
 analyse_datasets()
 
+# number_of_movies_and_ratings()
+# plt.show()
+
 genres = rc.get_all_genres(movies)
 movies = rc.extract_genres(movies)
 
-plot_cumsum_of_movies_and_genres(movies)
-plot_movies_per_genre(movies)
+# plot_cumsum_of_movies_and_genres(movies)
+# plot_movies_per_genre(movies)
+
+# analyse ratings
+print(ratings.info())
+print(ratings.describe())
+fig, ax1 = plt.subplots(figsize=(10, 5))
+ax2 = ax1.twinx()
+sns.displot(ratings, x="rating", binwidth=0.5, ax=ax2)
+print(ratings["rating"].value_counts())
+print(sum(ratings["rating"].isna()))
+plt.xlim(0, 5)
+# plt.show()
+
+print(movies.info())
+print(movies.index)
+# movies_with_ratings=movies.join(ratings,how="left",lsuffix="movies",rsuffix="ratings")
+movies_with_ratings = pd.merge(movies, ratings, left_index=True, right_index=True, how="inner")
+movies_with_ratings.drop(axis=1, columns="movieId_x", inplace=True)
+print(movies_with_ratings.head(10))
+
+# plot for each genre rating
+# genre_groups=movies_with_ratings.groupby("genre")
+
+count = 0
+# ax2 = ax1.twinx()
+ax3 = ax1.twinx()
+
+for genre in genres:
+    print(genre)
+
+    df = movies_with_ratings.loc[movies_with_ratings.loc[:, genre], :]
+    #print(df)
+
+    sns.kdeplot(data=df, x="rating", ax=ax3,label=genre).set_title("testse")
+
+
+
+ax3.legend(loc="upper left", ncol=2)
+plt.show()
+
+#plt.xlabel('Genre', fontsize=12)
+#plt.ylabel('Number of movies tagged', fontsize=12)
+#plt.title('Movies per genre tag', fontsize=17)
+
+#some basic statistic per genre
+ratings_statistic=pd.DataFrame(columns=["mean","std"])
+for genre in genres:
+    df = movies_with_ratings.loc[movies_with_ratings.loc[:, genre], :]
+
+    ratings_statistic.loc[genre,"mean"]=df.rating.mean()
+    ratings_statistic.loc[genre, "std"] = df.rating.std()
+print(ratings_statistic)
+
+#sns.barplot(x=ratings_statistic.index,hue="Variable",data=ratings_statistic)
+ax4=ax1.twinx()
+ratings_statistic.loc[:,['mean', 'std']].plot(kind='bar', color=['b','r'],  grid=False)
+#pd.melt(df, id_vars=df.index, var_name="sex", value_name="survival rate")
+plt.xticks(rotation='vertical')
+plt.title("Movie rating descriptive stats")
+plt.xlabel('Genre', fontsize=12)
+ax3.legend(loc="upper left", ncol=2)
+plt.show()
