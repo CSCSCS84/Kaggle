@@ -39,6 +39,7 @@ def analyse_ratings(ratings):
     print(ratings.info(memory_usage="deep"))
     print(ratings.isna().sum())
     print(ratings.head(10))
+    print(ratings.rating.value_counts())
 
 
 def group_by_year_and_genre(movies, genres):
