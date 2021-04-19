@@ -113,34 +113,48 @@ for genre in genres:
     print(genre)
 
     df = movies_with_ratings.loc[movies_with_ratings.loc[:, genre], :]
-    #print(df)
+    # print(df)
 
-    sns.kdeplot(data=df, x="rating", ax=ax3,label=genre).set_title("testse")
-
-
+    sns.kdeplot(data=df, x="rating", ax=ax3, label=genre).set_title("testse")
 
 ax3.legend(loc="upper left", ncol=2)
 plt.show()
 
-#plt.xlabel('Genre', fontsize=12)
-#plt.ylabel('Number of movies tagged', fontsize=12)
-#plt.title('Movies per genre tag', fontsize=17)
+# plt.xlabel('Genre', fontsize=12)
+# plt.ylabel('Number of movies tagged', fontsize=12)
+# plt.title('Movies per genre tag', fontsize=17)
 
-#some basic statistic per genre
-ratings_statistic=pd.DataFrame(columns=["mean","std"])
+# some basic statistic per genre
+ratings_statistic = pd.DataFrame(columns=["average_rating", "std", "num_of_ratings","ratings_mean"])
 for genre in genres:
     df = movies_with_ratings.loc[movies_with_ratings.loc[:, genre], :]
 
-    ratings_statistic.loc[genre,"mean"]=df.rating.mean()
+    ratings_statistic.loc[genre, "average_rating"] = df.rating.mean()
     ratings_statistic.loc[genre, "std"] = df.rating.std()
-print(ratings_statistic)
+    ratings_statistic.loc[genre, "num_of_ratings"] = df.shape[0]
 
-#sns.barplot(x=ratings_statistic.index,hue="Variable",data=ratings_statistic)
-ax4=ax1.twinx()
-ratings_statistic.loc[:,['mean', 'std']].plot(kind='bar', color=['b','r'],  grid=False)
-#pd.melt(df, id_vars=df.index, var_name="sex", value_name="survival rate")
-plt.xticks(rotation='vertical')
+print(ratings_statistic.shape[0])
+ratings_statistic["ratings_mean"]=ratings_statistic.average_rating.mean()
+print(ratings_statistic)
+# sns.barplot(x=ratings_statistic.index,hue="Variable",data=ratings_statistic)
+# ax4=ax3.twinx()
+fig, ax1 = plt.subplots(figsize=(10, 5))
+ratings_statistic.loc[:, ['average_rating', 'std']].plot(kind='bar', color=['b', 'r'], grid=False, ax=ax1)
+
+# pd.melt(df, id_vars=df.index, var_name="sex", value_name="survival rate")
+
 plt.title("Movie rating descriptive stats")
 plt.xlabel('Genre', fontsize=12)
-ax3.legend(loc="upper left", ncol=2)
+
+ratings_statistic.loc[:, ['ratings_mean']].plot(kind='line',style="--", color="black", grid=False, ax=ax1)
+
+ax1.legend(loc="center left", ncol=1)
+plt.xticks(rotation='vertical')
+ax2 = ax1.twinx()
+
+plt.gcf().subplots_adjust(bottom=0.30)
+
+# number of ratings per genre
+ratings_statistic.loc[:, ['num_of_ratings']].plot(kind='line', color="black", grid=False, ax=ax2)
+ax2.legend(loc="center right", ncol=1)
 plt.show()
