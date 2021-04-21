@@ -12,8 +12,8 @@ import sys
 
 start = default_timer()
 pd.options.display.max_columns = 40
-#nrows = 10000
-nrows = sys.maxsize
+nrows = 10000
+# nrows = sys.maxsize
 genome_scores = rc.read_and_clean_genome_scores(nrows)
 genome_tags = rc.read_and_clean_genome_tags(nrows)
 link = rc.read_and_clean_link(nrows)
@@ -73,7 +73,7 @@ def plot_movies_per_genre(movies):
     plt.show()
 
 
-analyse_datasets()
+# analyse_datasets()
 
 # number_of_movies_and_ratings()
 # plt.show()
@@ -100,9 +100,14 @@ def analyse_ratings(movies_with_ratings):
 
 
 # analyse ratings
+print(movies.info())
+print(ratings.info())
 movies_with_ratings = pd.merge(movies, ratings, left_index=True, right_index=True, how="inner")
-movies_with_ratings.drop(axis=1, columns="movieId_x", inplace=True)
-analyse_ratings(movies_with_ratings)
+mapper_columns = {"movieId_x": "movieId"}
+movies_with_ratings.rename(columns=mapper_columns, inplace=True)
+print("movies with ratings")
+print(movies_with_ratings.info())
+
 
 # some basic statistic per genre
 def calc_rating_statistics():
@@ -117,7 +122,8 @@ def calc_rating_statistics():
     print(ratings_statistic)
     return ratings_statistic
 
-#plot basic rating statistics
+
+# plot basic rating statistics
 def basic_statistic_for_ratings():
     global ax1
 
@@ -135,7 +141,53 @@ def basic_statistic_for_ratings():
     ax2 = ax1.twinx()
     ratings_statistic.loc[:, ['num_of_ratings']].plot(kind='line', color="black", grid=False, ax=ax2)
     ax2.legend(loc="center right", ncol=1)
+
+    f, ax1 = plt.subplots(figsize=(18, 12))
+    ratings_statistic.loc[:, ["num_of_ratings"]].plot.pie(y="num_of_ratings", ax=ax1, title="Number of Ratings")
+    plt.ylabel('', fontsize=12)
+    ax1.legend(loc=(-0.7, 0), labels=ratings_statistic.index)
+
     plt.show()
 
 
-basic_statistic_for_ratings()
+# basic_statistic_for_ratings()
+
+
+ratings_mean = ratings.groupby(["movieId"]).mean()
+ratings_per_movie = pd.merge(movies, ratings_mean, right_on="movieId", left_on="movieId")
+
+
+# ratings per movie average
+def ratings_per_movie_average():
+    plt.plot(ratings_per_movie.year, ratings_per_movie.rating, "g.", markersize=4)
+    plt.show()
+
+
+# ratings_per_movie_average()
+
+# average rating for each year and genrex
+def average_rating_for_each_year_and_genre():
+    count = 1
+    plt.subplots(figsize=(20, 10))
+    for genre in genres:
+        ratings_in_genre = ratings_per_movie.loc[ratings_per_movie.loc[:, genre], :]
+        sns.lineplot(x=ratings_in_genre.year, y=ratings_in_genre.rating, ci=None, label=genre)
+        name_plot()
+        if count % 5 == 0:
+            sns.lineplot(x=ratings_per_movie.year, y=ratings_per_movie.rating, ci=None, color="black", lw=4)
+
+            plt.show()
+            plt.subplots(figsize=(20, 10))
+        count = count + 1
+    name_plot()
+    plt.show()
+
+
+def name_plot():
+    plt.xlabel('Year')
+    plt.ylabel('Average Rating')
+    plt.title('Average rating per year per genre')
+    plt.legend(loc=(0, 0), ncol=2)
+
+
+average_rating_for_each_year_and_genre()
