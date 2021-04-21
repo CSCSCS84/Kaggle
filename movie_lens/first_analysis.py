@@ -1,6 +1,7 @@
 # Analysis of the movielens dataset from Kaggle
 # https://www.kaggle.com/grouplens/movielens-20m-dataset
 import pandas as pd
+import numpy as np
 from timeit import default_timer
 import seaborn as sns
 
@@ -12,8 +13,8 @@ import sys
 
 start = default_timer()
 pd.options.display.max_columns = 40
-nrows = 10000
-# nrows = sys.maxsize
+nrows = 100000
+#nrows = sys.maxsize
 genome_scores = rc.read_and_clean_genome_scores(nrows)
 genome_tags = rc.read_and_clean_genome_tags(nrows)
 link = rc.read_and_clean_link(nrows)
@@ -75,8 +76,8 @@ def plot_movies_per_genre(movies):
 
 # analyse_datasets()
 
-# number_of_movies_and_ratings()
-# plt.show()
+#number_of_movies_and_ratings()
+plt.show()
 
 genres = rc.get_all_genres(movies)
 movies = rc.extract_genres(movies)
@@ -190,4 +191,28 @@ def name_plot():
     plt.legend(loc=(0, 0), ncol=2)
 
 
-average_rating_for_each_year_and_genre()
+#average_rating_for_each_year_and_genre()
+
+print(ratings.head())
+ratings_per_user=ratings.groupby("userId").mean()
+print(ratings_per_user.head(10))
+fig, ax3 = plt.subplots(figsize=(15, 10))
+g=sns.displot(data=ratings_per_user.loc[:,"rating"],bins=50,ax=ax3)
+g.set(xlabel='Year', ylabel='Number of Movies released', title="Number of Movies per Year")
+#plt.xlabel ('Average movie rating')
+#plt.ylabel ('Count')
+#plt.title ('Average ratings per user')
+
+ratings_per_user.sort_values(by="rating",inplace=True)
+ratings_per_user["position"]=np.nan
+pos=ratings_per_user.columns.get_loc("position")
+print(pos)
+ratings_per_user.iloc[0,pos]=1
+for i in range(1,ratings_per_user.shape[0]):
+    ratings_per_user.iloc[i,pos]=i
+ax2=ax3.twinx()
+g2=sns.lineplot(x="rating",y="position",data=ratings_per_user,ax=ax3)
+g2.set(xlabel='Year', ylabel='Number of Movies released', title="Number of Movies per Year")
+print(ratings_per_user)
+plt.show()
+
