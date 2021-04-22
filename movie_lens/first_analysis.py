@@ -74,17 +74,17 @@ def plot_movies_per_genre(movies):
     plt.show()
 
 
-# analyse_datasets()
+analyse_datasets()
 
-#number_of_movies_and_ratings()
+number_of_movies_and_ratings()
 plt.show()
 
 genres = rc.get_all_genres(movies)
 movies = rc.extract_genres(movies)
 
+plot_cumsum_of_movies_and_genres(movies)
+plot_movies_per_genre(movies)
 
-# plot_cumsum_of_movies_and_genres(movies)
-# plot_movies_per_genre(movies)
 
 def analyse_ratings(movies_with_ratings):
     global ax1
@@ -151,8 +151,7 @@ def basic_statistic_for_ratings():
     plt.show()
 
 
-# basic_statistic_for_ratings()
-
+basic_statistic_for_ratings()
 
 ratings_mean = ratings.groupby(["movieId"]).mean()
 ratings_per_movie = pd.merge(movies, ratings_mean, right_on="movieId", left_on="movieId")
@@ -164,9 +163,10 @@ def ratings_per_movie_average():
     plt.show()
 
 
-# ratings_per_movie_average()
+ratings_per_movie_average()
 
-# average rating for each year and genrex
+
+# average rating for each year and genre
 def average_rating_for_each_year_and_genre():
     count = 1
     plt.subplots(figsize=(20, 10))
@@ -191,28 +191,27 @@ def name_plot():
     plt.legend(loc=(0, 0), ncol=2)
 
 
-#average_rating_for_each_year_and_genre()
+average_rating_for_each_year_and_genre()
 
-print(ratings.head())
-ratings_per_user=ratings.groupby("userId").mean()
-print(ratings_per_user.head(10))
-fig, ax3 = plt.subplots(figsize=(15, 10))
-g=sns.displot(data=ratings_per_user.loc[:,"rating"],bins=50,ax=ax3)
-g.set(xlabel='Year', ylabel='Number of Movies released', title="Number of Movies per Year")
-#plt.xlabel ('Average movie rating')
-#plt.ylabel ('Count')
-#plt.title ('Average ratings per user')
 
-ratings_per_user.sort_values(by="rating",inplace=True)
-ratings_per_user["position"]=np.nan
-pos=ratings_per_user.columns.get_loc("position")
-print(pos)
-ratings_per_user.iloc[0,pos]=1
-for i in range(1,ratings_per_user.shape[0]):
-    ratings_per_user.iloc[i,pos]=i
-ax2=ax3.twinx()
-g2=sns.lineplot(x="rating",y="position",data=ratings_per_user,ax=ax3)
-g2.set(xlabel='Year', ylabel='Number of Movies released', title="Number of Movies per Year")
-print(ratings_per_user)
-plt.show()
+def rating_per_user():
+    ratings_per_user = ratings_per_user_df()
+    fig2, ax_new = plt.subplots()
+    sns.set()
+    g2 = sns.lineplot(x="rating", y="position", data=ratings_per_user, ax=ax_new)
+    g2.set(xlabel='Rating', ylabel='CDF',title="CDF")
 
+    ax_new2 = ax_new.twinx()
+    g1 = sns.displot(data=ratings_per_user.loc[:, "rating"], bins=50, ax=ax_new2)
+    g1.set(xlabel='Average movie rating', ylabel="Frequency", title='Average ratings per user')
+    plt.show()
+
+
+def ratings_per_user_df():
+    ratings_per_user = ratings.groupby("userId").mean()
+    ratings_per_user.sort_values(by="rating", inplace=True)
+    ratings_per_user["position"] = [i for i in range(1, ratings_per_user.shape[0] + 1)]
+    return ratings_per_user
+
+
+rating_per_user()
